@@ -70,13 +70,19 @@ export function GetInstalledDependencies(arg1:string):Promise<Array<string>>;
 
 export function GetInstalledDependents(arg1:string):Promise<Array<string>>;
 
+export function GetLandingTab():Promise<string>;
+
 export function GetMacOSReleaseName():Promise<string>;
 
 export function GetMacOSVersion():Promise<string>;
 
 export function GetMirrorSource():Promise<Record<string, string>>;
 
+export function GetNoQuarantine():Promise<boolean>;
+
 export function GetOutdatedFlag():Promise<string>;
+
+export function GetProxy():Promise<string>;
 
 export function GetSessionLogs():Promise<string>;
 
@@ -106,6 +112,8 @@ export function RunBrewCleanupDryRun():Promise<string>;
 
 export function RunBrewDoctor():Promise<string>;
 
+export function SaveWindowGeometry(arg1:number,arg2:number,arg3:number,arg4:number,arg5:boolean):Promise<void>;
+
 export function SelectCaskAppDir():Promise<string>;
 
 export function SetAdminUsername(arg1:string):Promise<void>;
@@ -126,13 +134,23 @@ export function SetDockBadgeCountSync(arg1:number):Promise<void>;
 
 export function SetDockBadgeSync(arg1:string):Promise<void>;
 
+export function SetLandingTab(arg1:string):Promise<void>;
+
 export function SetLanguage(arg1:string):Promise<void>;
 
 export function SetMirrorSource(arg1:string,arg2:string):Promise<void>;
 
+export function SetNoQuarantine(arg1:boolean):Promise<void>;
+
 export function SetOutdatedFlag(arg1:string):Promise<void>;
 
+export function SetProxy(arg1:string):Promise<void>;
+
+export function SetWindowTheme(arg1:boolean):Promise<void>;
+
 export function TapBrewRepository(arg1:string):Promise<string>;
+
+export function TestProxyConnection(arg1:string,arg2:string):Promise<string>;
 
 export function UntapBrewRepository(arg1:string):Promise<string>;
 

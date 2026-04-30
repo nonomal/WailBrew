@@ -17,7 +17,6 @@
     "cleanup": "ניקוי",
     "settings": "הגדרות",
     "refresh": "רענון",
-    "commandPalette": "לוח פקודות",
     "sponsor": "תמיכה"
   },
   "headers": {
@@ -39,18 +38,10 @@
     "recentSearches": "חיפושים אחרונים",
     "removeFromHistory": "הסר את \"{{item}}\" מההיסטוריה"
   },
-  "commandPalette": {
-    "placeholder": "חפש חבילות, casks, מאגרים, או נווט לתצוגות...",
-    "noResults": "לא נמצאו תוצאות",
-    "toSelect": "לבחירה",
-    "toNavigate": "לניווט",
-    "toClose": "לסגירה"
-  },
   "shortcuts": {
     "title": "קיצורי מקלדת",
     "menu": {
       "title": "תפריט",
-      "commandPalette": "לוח פקודות",
       "shortcuts": "קיצורי מקלדת",
       "settings": "הגדרות",
       "quit": "יציאה"
@@ -311,7 +302,6 @@
       "doctor": "דוקטור",
       "cleanup": "ניקוי",
       "settings": "הגדרות",
-      "commandPalette": "לוח פקודות...",
       "shortcuts": "קיצורי מקלדת..."
     },
     "tools": {
@@ -421,6 +411,15 @@
     "categories": {
       "general": "כללי"
     },
+    "landingTab": {
+      "title": "לשונית פתיחה",
+      "description": "בחר איזו לשונית תוצג כאשר WailBrew מופעל.",
+      "label": "התחל ב"
+    },
+    "noQuarantine": {
+      "title": "דלג על הסגר עבור casks",
+      "description": "מסיר אוטומטית את תכונת ההסגר של macOS בעת התקנה או עדכון של casks. מונע את אזהרת \"האפליקציה פגומה\" או Gatekeeper בהפעלה הראשונה."
+    },
     "brewPath": {
       "title": "הגדרת נתיב Homebrew",
       "description": "ציין את הנתיב להתקנת Homebrew שלך. WailBrew ישתמש בנתיב זה להפעלת כל פקודות Homebrew.",
@@ -448,7 +447,11 @@
       "caskAppDirReset": "תיקיית יישומי Cask אופסה לערך הנוכחי.",
       "customCaskOptsUpdated": "אפשרויות cask מותאמות עודכנו בהצלחה!",
       "customOutdatedArgsUpdated": "ארגומנטים מותאמים למיושנים עודכנו בהצלחה!",
-      "adminUsernameUpdated": "שם משתמש מנהל עודכן בהצלחה!"
+      "adminUsernameUpdated": "שם משתמש מנהל עודכן בהצלחה!",
+      "proxyUpdated": "הגדרות הפרוקסי עודכנו בהצלחה!",
+      "proxyTestSuccess": "בדיקת חיבור הפרוקסי הצליחה!",
+      "landingTabUpdated": "לשונית הפתיחה עודכנה בהצלחה!",
+      "landingTabReset": "לשונית הפתיחה אופסה לערך הנוכחי."
     },
     "errors": {
       "failedToGetPath": "נכשל בקבלת נתיב brew הנוכחי.",
@@ -461,7 +464,12 @@
       "failedToSelectDirectory": "נכשל בבחירת תיקייה.",
       "failedToSetCustomCaskOpts": "נכשל בהגדרת אפשרויות cask מותאמות. אנא בדוק את הקלט.",
       "failedToSetCustomOutdatedArgs": "נכשל בהגדרת ארגומנטים מותאמים למיושנים. אנא בדוק את הקלט.",
-      "failedToSetAdminUsername": "נכשל בעדכון שם משתמש מנהל"
+      "failedToSetAdminUsername": "נכשל בעדכון שם משתמש מנהל",
+      "failedToSetProxy": "נכשל בהגדרת חיבור הפרוקסי. אנא בדוק את הקלט.",
+      "emptyTestUrl": "אנא הזן כתובת URL לבדיקה.",
+      "emptyProxyForTest": "אנא הזן כתובת URL של פרוקסי לבדיקה.",
+      "proxyTestFailed": "בדיקת חיבור הפרוקסי נכשלה.",
+      "failedToSetLandingTab": "לא ניתן להגדיר את לשונית הפתיחה. אנא בדוק את ההגדרות."
     },
     "mirrorSource": {
       "title": "מקור מראה של Homebrew",
@@ -514,6 +522,18 @@
       "placeholder": "הזן שם משתמש מנהל",
       "currentUser": "משתמש נוכחי",
       "info": "שם משתמש זה ישמש כאשר פעולות Homebrew דורשות הרשאות מנהל. השאר ריק כדי להשתמש בחשבון המשתמש הנוכחי שלך."
+    },
+    "proxy": {
+      "title": "הגדרות פרוקסי",
+      "none": "ללא",
+      "description": "הגדר פרוקסי HTTP עבור Homebrew. תומך בשם משתמש וסיסמה (למשל http://user:pass@127.0.0.1:7890).",
+      "currentProxy": "פרוקסי נוכחי",
+      "placeholder": "http://127.0.0.1:7890",
+      "note": "ייתכן שיידרש הפעלה מחדש כדי שחלק מהשינויים ייכנסו לתוקף במלואם, אך רוב פקודות brew יזהו זאת מיד.",
+      "testConnection": "בדוק חיבור",
+      "testUrlPlaceholder": "https://google.com או https://brew.sh",
+      "testButton": "בדוק",
+      "testing": "בודק..."
     },
     "advancedOptions": {
       "title": "אפשרויות מתקדמות",

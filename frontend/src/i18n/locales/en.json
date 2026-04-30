@@ -17,7 +17,6 @@
     "cleanup": "Cleanup",
     "settings": "Settings",
     "refresh": "Refresh",
-    "commandPalette": "Command Palette",
     "sponsor": "Sponsor"
   },
   "headers": {
@@ -39,18 +38,10 @@
     "recentSearches": "Recent Searches",
     "removeFromHistory": "Remove \"{{item}}\" from history"
   },
-  "commandPalette": {
-    "placeholder": "Search packages, casks, repositories, or navigate to views...",
-    "noResults": "No results found",
-    "toSelect": "to select",
-    "toNavigate": "to navigate",
-    "toClose": "to close"
-  },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
     "menu": {
       "title": "Menu",
-      "commandPalette": "Command Palette",
       "shortcuts": "Keyboard Shortcuts",
       "settings": "Settings",
       "quit": "Quit"
@@ -311,7 +302,6 @@
       "doctor": "Doctor",
       "cleanup": "Cleanup",
       "settings": "Settings",
-      "commandPalette": "Command Palette...",
       "shortcuts": "Keyboard Shortcuts..."
     },
     "tools": {
@@ -421,6 +411,15 @@
     "categories": {
       "general": "General"
     },
+    "landingTab": {
+      "title": "Landing Tab",
+      "description": "Choose which tab is displayed when WailBrew starts.",
+      "label": "Start on"
+    },
+    "noQuarantine": {
+      "title": "Skip Quarantine for Casks",
+      "description": "Automatically remove the macOS quarantine attribute when installing or upgrading casks. This prevents the \"app is damaged\" or Gatekeeper warning on first launch."
+    },
     "brewPath": {
       "title": "Homebrew Path Configuration",
       "description": "Specify the path to your Homebrew installation. WailBrew will use this path to execute all Homebrew commands.",
@@ -448,7 +447,11 @@
       "caskAppDirReset": "Cask app directory reset to current value.",
       "customCaskOptsUpdated": "Custom cask options updated successfully!",
       "customOutdatedArgsUpdated": "Custom outdated arguments updated successfully!",
-      "adminUsernameUpdated": "Admin username updated successfully!"
+      "adminUsernameUpdated": "Admin username updated successfully!",
+      "proxyUpdated": "Proxy settings updated successfully!",
+      "proxyTestSuccess": "Proxy connection test successful!",
+      "landingTabUpdated": "Landing tab updated successfully!",
+      "landingTabReset": "Landing tab reset to current value."
     },
     "errors": {
       "failedToGetPath": "Failed to get current brew path.",
@@ -461,7 +464,12 @@
       "failedToSelectDirectory": "Failed to select directory.",
       "failedToSetCustomCaskOpts": "Failed to set custom cask options. Please check your input.",
       "failedToSetCustomOutdatedArgs": "Failed to set custom outdated arguments. Please check your input.",
-      "failedToSetAdminUsername": "Failed to update admin username"
+      "failedToSetAdminUsername": "Failed to update admin username",
+      "failedToSetProxy": "Failed to set proxy connection. Please check your input.",
+      "emptyTestUrl": "Please enter a test URL.",
+      "emptyProxyForTest": "Please enter a proxy URL to test.",
+      "proxyTestFailed": "Proxy connection test failed.",
+      "failedToSetLandingTab": "Failed to set landing tab. Please check your configuration."
     },
     "mirrorSource": {
       "title": "Homebrew Mirror Source",
@@ -514,6 +522,18 @@
       "placeholder": "Enter admin username",
       "currentUser": "Current user",
       "info": "This username will be used when Homebrew operations require administrator privileges. Leave empty to use your current user account."
+    },
+    "proxy": {
+      "title": "Proxy Settings",
+      "none": "None",
+      "description": "Configure an HTTP proxy for Homebrew. Supports username and password (e.g. http://user:pass@127.0.0.1:7890).",
+      "currentProxy": "Current Proxy",
+      "placeholder": "http://127.0.0.1:7890",
+      "note": "A restart might be required for some changes to take effect fully, but most brew commands will pick this up immediately.",
+      "testConnection": "Test Connection",
+      "testUrlPlaceholder": "https://google.com or https://brew.sh",
+      "testButton": "Test",
+      "testing": "Testing..."
     },
     "advancedOptions": {
       "title": "Advanced Options",

@@ -17,6 +17,7 @@ import {
     GetBrewPackageSizes,
     GetBrewTapInfo,
     GetInstalledDependents,
+    GetLandingTab,
     GetBrewUpdatablePackages,
     GetBrewUpdatablePackagesWithUpdate,
     GetDeprecatedFormulae,
@@ -28,6 +29,7 @@ import {
     RunBrewCleanup,
     RunBrewCleanupDryRun,
     RunBrewDoctor,
+    SaveWindowGeometry,
     SetDockBadgeCount,
     SetDockBadgeCountSync,
     SetLanguage,
@@ -38,13 +40,17 @@ import {
     UpdateHomebrew,
     UpdateSelectedBrewPackages
 } from "../wailsjs/go/main/App";
-import { EventsOn } from "../wailsjs/runtime";
+import {
+    EventsOn,
+    WindowGetPosition,
+    WindowGetSize,
+    WindowIsMaximised,
+} from "../wailsjs/runtime";
 import "./App.css";
 import "./style.css";
 
 import AboutDialog from "./components/AboutDialog";
 import CleanupView from "./components/CleanupView";
-import CommandPalette from "./components/CommandPalette";
 import ConfirmDialog from "./components/ConfirmDialog";
 import DoctorView from "./components/DoctorView";
 import HeaderRow from "./components/HeaderRow";
@@ -61,6 +67,7 @@ import ShortcutsDialog from "./components/ShortcutsDialog";
 import Sidebar from "./components/Sidebar";
 import TapInputDialog from "./components/TapInputDialog";
 import UpdateDialog from "./components/UpdateDialog";
+import { LoadingTimer } from "./components/LoadingTimer";
 import { mapToSupportedLanguage } from "./i18n/languageUtils";
 
 interface PackageEntry {
@@ -125,7 +132,6 @@ const WailBrewApp = () => {
     const [isInfoRunning, setIsInfoRunning] = useState<boolean>(false);
     const [repositoryInfoLogs, setRepositoryInfoLogs] = useState<string | null>(null);
     const [showRepositoryInfo, setShowRepositoryInfo] = useState<boolean>(false);
-    const [showCommandPalette, setShowCommandPalette] = useState<boolean>(false);
     const [showShortcuts, setShowShortcuts] = useState<boolean>(false);
     const [selectedPackages, setSelectedPackages] = useState<Set<string>>(new Set());
     const [showUpdateSelectedConfirm, setShowUpdateSelectedConfirm] = useState<boolean>(false);
@@ -153,11 +159,8 @@ const WailBrewApp = () => {
     const lastSyncedLanguage = useRef<string>("en");
     const isInitialLoad = useRef<boolean>(true);
 
-    // Loading timer for development
+    // Loading timer for development (DEV only — isolated to LoadingTimer component)
     const [loadingStartTime, setLoadingStartTime] = useState<number | null>(null);
-    const [loadingElapsedTime, setLoadingElapsedTime] = useState<number>(0);
-    const loadingTimerInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-    const loadingStartTimeRef = useRef<number | null>(null);
 
     // Background update checking state
     const [isBackgroundCheckRunning, setIsBackgroundCheckRunning] = useState<boolean>(false);
@@ -189,6 +192,39 @@ const WailBrewApp = () => {
     } as const;
 
     useEffect(() => {
+        GetLandingTab().then((tab) => {
+            if (tab) setView(tab as typeof view);
+        }).catch(() => {});
+    }, []);
+
+    // Persist window geometry on resize/move so it survives force-quits and
+    // crashes (where the Go shutdown hook may not run). Debounced to avoid
+    // flooding the config writer during a drag.
+    useEffect(() => {
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        const persist = () => {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(async () => {
+                try {
+                    const [size, pos, maximised] = await Promise.all([
+                        WindowGetSize(),
+                        WindowGetPosition(),
+                        WindowIsMaximised(),
+                    ]);
+                    await SaveWindowGeometry(size.w, size.h, pos.x, pos.y, maximised);
+                } catch (err) {
+                    console.error("Failed to persist window geometry:", err);
+                }
+            }, 500);
+        };
+        window.addEventListener("resize", persist);
+        return () => {
+            window.removeEventListener("resize", persist);
+            if (timer) clearTimeout(timer);
+        };
+    }, []);
+
+    useEffect(() => {
         // Get app version from backend
         GetAppVersion().then(version => {
             setAppVersion(version);
@@ -197,18 +233,8 @@ const WailBrewApp = () => {
         });
 
         setLoading(true);
-        // Start loading timer
-        const startTime = Date.now();
-        loadingStartTimeRef.current = startTime;
-        setLoadingStartTime(startTime);
-        setLoadingElapsedTime(0);
-
-        // Update timer every 100ms
-        loadingTimerInterval.current = setInterval(() => {
-            if (loadingStartTimeRef.current) {
-                setLoadingElapsedTime(Date.now() - loadingStartTimeRef.current);
-            }
-        }, 100);
+        // Start loading timer (DEV only)
+        setLoadingStartTime(Date.now());
 
         // Use single optimized startup call with database update for fresh outdated packages
         // Database update runs in parallel with other fetches to minimize startup time
@@ -290,16 +316,6 @@ const WailBrewApp = () => {
                 setRepositories(reposFormatted);
                 // Note: allPackages are loaded lazily when user switches to "all" view
 
-                // Stop loading timer
-                if (loadingTimerInterval.current) {
-                    clearInterval(loadingTimerInterval.current);
-                    loadingTimerInterval.current = null;
-                }
-                if (loadingStartTimeRef.current) {
-                    const finalTime = Date.now() - loadingStartTimeRef.current;
-                    setLoadingElapsedTime(finalTime);
-                    loadingStartTimeRef.current = null;
-                }
 
                 setLoading(false);
 
@@ -380,16 +396,6 @@ const WailBrewApp = () => {
 
                 setError(errorMessage);
 
-                // Stop loading timer on error
-                if (loadingTimerInterval.current) {
-                    clearInterval(loadingTimerInterval.current);
-                    loadingTimerInterval.current = null;
-                }
-                if (loadingStartTimeRef.current) {
-                    const finalTime = Date.now() - loadingStartTimeRef.current;
-                    setLoadingElapsedTime(finalTime);
-                    loadingStartTimeRef.current = null;
-                }
 
                 setLoading(false);
 
@@ -406,9 +412,6 @@ const WailBrewApp = () => {
         return () => {
             if (backgroundCheckInterval.current) {
                 clearInterval(backgroundCheckInterval.current);
-            }
-            if (loadingTimerInterval.current) {
-                clearInterval(loadingTimerInterval.current);
             }
         };
     }, []);
@@ -437,13 +440,16 @@ const WailBrewApp = () => {
         };
     }, [i18n.language, i18n.resolvedLanguage]);
 
-    // Load all packages when user switches to "all" view
+    // Load all packages when user switches to "all" view.
+    // Wait for the initial startup (which runs brew update) to complete before
+    // calling brew formulae - otherwise the API cache may not be populated yet
+    // on a fresh Homebrew installation, resulting in an empty package list.
     useEffect(() => {
-        if (view === "all" && !allPackagesLoaded && !loadingAllPackages) {
+        if (view === "all" && !loading && !allPackagesLoaded && !loadingAllPackages) {
             loadAllPackages();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [view, allPackagesLoaded, loadingAllPackages]);
+    }, [view, loading, allPackagesLoaded, loadingAllPackages]);
 
     // Apply pending dependency selection once allPackages has finished loading
     useEffect(() => {
@@ -462,13 +468,14 @@ const WailBrewApp = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [allPackagesLoaded, allPackages]);
 
-    // Load all casks when user switches to "allCasks" view
+    // Load all casks when user switches to "allCasks" view.
+    // Same guard as above: wait for initial startup to finish first.
     useEffect(() => {
-        if (view === "allCasks" && !allCasksLoaded && !loadingAllCasks) {
+        if (view === "allCasks" && !loading && !allCasksLoaded && !loadingAllCasks) {
             loadAllCasks();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [view, allCasksLoaded, loadingAllCasks]);
+    }, [view, loading, allCasksLoaded, loadingAllCasks]);
 
     // Update Dock badge when updatable packages count changes
     useEffect(() => {
@@ -800,11 +807,6 @@ const WailBrewApp = () => {
     // Global keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            // Check for Cmd+K (Mac) or Ctrl+K (Windows/Linux) - Command Palette
-            if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-                event.preventDefault();
-                setShowCommandPalette(prev => !prev);
-            }
             // Check for Cmd+Shift+S (Mac) or Ctrl+Shift+S (Windows/Linux) - Shortcuts
             if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'S') {
                 event.preventDefault();
@@ -849,9 +851,6 @@ const WailBrewApp = () => {
         });
         const unlistenWailbrewUpdated = EventsOn("wailbrewUpdated", () => {
             setShowRestart(true);
-        });
-        const unlistenCommandPalette = EventsOn("showCommandPalette", () => {
-            setShowCommandPalette(prev => !prev);
         });
         const unlistenShortcuts = EventsOn("showShortcuts", () => {
             setShowShortcuts(prev => !prev);
@@ -982,7 +981,6 @@ const WailBrewApp = () => {
             unlistenAbout();
             unlistenUpdate();
             unlistenWailbrewUpdated();
-            unlistenCommandPalette();
             unlistenShortcuts();
             unlistenSessionLogs();
             unlistenNewPackages();
@@ -1124,7 +1122,7 @@ const WailBrewApp = () => {
             conflicts: (info["conflicts_with"] as string[]) || [],
         };
 
-        setPackageCache(new Map(packageCache.set(pkg.name, enriched)));
+        setPackageCache(prev => new Map(prev).set(pkg.name, enriched));
         setSelectedPackage(enriched);
         setLoadingDetailsFor(null);
     };
@@ -2170,9 +2168,7 @@ const WailBrewApp = () => {
             <main className="content">
                 {/* Loading timer for development only */}
                 {import.meta.env.DEV && loadingStartTime !== null && (
-                    <div className="loading-timer">
-                        ⏱️ {loadingElapsedTime > 0 ? (loadingElapsedTime / 1000).toFixed(2) : '0.00'}s
-                    </div>
+                    <LoadingTimer startTime={loadingStartTime} />
                 )}
                 {view === "installed" && (
                     <>
@@ -2802,38 +2798,6 @@ const WailBrewApp = () => {
                 <ShortcutsDialog
                     open={showShortcuts}
                     onClose={() => setShowShortcuts(false)}
-                />
-                <CommandPalette
-                    open={showCommandPalette}
-                    onClose={() => setShowCommandPalette(false)}
-                    packages={allPackages}
-                    casks={casks}
-                    repositories={repositories}
-                    onSelectPackage={async (pkg) => {
-                        const fullPkg: PackageEntry = {
-                            name: pkg.name,
-                            installedVersion: pkg.installedVersion || '',
-                            latestVersion: pkg.latestVersion,
-                            size: pkg.size,
-                            desc: pkg.desc,
-                            homepage: pkg.homepage,
-                            dependencies: pkg.dependencies,
-                            conflicts: pkg.conflicts,
-                            isInstalled: pkg.isInstalled,
-                            warning: pkg.warning,
-                        };
-                        await handleSelect(fullPkg);
-                    }}
-                    onSelectRepository={(repo) => {
-                        const repoEntry = repositories.find(r => r.name === repo.name);
-                        if (repoEntry) {
-                            setSelectedRepository(repoEntry);
-                            setSelectedPackage(null);
-                        }
-                    }}
-                    onNavigateToView={(view) => {
-                        setView(view as "installed" | "casks" | "updatable" | "all" | "allCasks" | "leaves" | "repositories" | "homebrew" | "doctor" | "cleanup" | "settings");
-                    }}
                 />
                 <Toaster
                     position="bottom-center"

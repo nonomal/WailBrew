@@ -17,7 +17,6 @@
     "cleanup": "Limpeza",
     "settings": "Configurações",
     "refresh": "Atualizar",
-    "commandPalette": "Paleta de Comandos",
     "sponsor": "Patrocinar"
   },
   "headers": {
@@ -39,18 +38,10 @@
     "recentSearches": "Buscas Recentes",
     "removeFromHistory": "Remover \"{{item}}\" do histórico"
   },
-  "commandPalette": {
-    "placeholder": "Buscar pacotes, casks, repositórios ou navegar para visualizações...",
-    "noResults": "Nenhum resultado encontrado",
-    "toSelect": "para selecionar",
-    "toNavigate": "para navegar",
-    "toClose": "para fechar"
-  },
   "shortcuts": {
     "title": "Atalhos de Teclado",
     "menu": {
       "title": "Menu",
-      "commandPalette": "Paleta de Comandos",
       "shortcuts": "Atalhos de Teclado",
       "settings": "Configurações",
       "quit": "Sair"
@@ -311,7 +302,6 @@
       "doctor": "Diagnóstico",
       "cleanup": "Limpeza",
       "settings": "Configurações",
-      "commandPalette": "Paleta de Comandos...",
       "shortcuts": "Atalhos de Teclado..."
     },
     "tools": {
@@ -421,6 +411,15 @@
     "categories": {
       "general": "Geral"
     },
+    "landingTab": {
+      "title": "Aba Inicial",
+      "description": "Escolha qual aba será exibida quando o WailBrew iniciar.",
+      "label": "Iniciar em"
+    },
+    "noQuarantine": {
+      "title": "Ignorar quarentena para casks",
+      "description": "Remove automaticamente o atributo de quarentena do macOS ao instalar ou atualizar casks. Evita o aviso de \"app danificado\" ou Gatekeeper na primeira execução."
+    },
     "brewPath": {
       "title": "Configuração do Caminho do Homebrew",
       "description": "Especifique o caminho da sua instalação do Homebrew. O WailBrew usará este caminho para executar todos os comandos do Homebrew.",
@@ -448,7 +447,11 @@
       "caskAppDirReset": "Configuração do diretório de aplicativos Cask redefinida para o valor atual.",
       "customCaskOptsUpdated": "Opções Cask personalizadas atualizadas com sucesso!",
       "customOutdatedArgsUpdated": "Argumentos outdated personalizados atualizados com sucesso!",
-      "adminUsernameUpdated": "Nome de usuário administrador atualizado com sucesso!"
+      "adminUsernameUpdated": "Nome de usuário administrador atualizado com sucesso!",
+      "proxyUpdated": "Configurações de proxy atualizadas com sucesso!",
+      "proxyTestSuccess": "Teste de conexão do proxy bem-sucedido!",
+      "landingTabUpdated": "Aba inicial atualizada com sucesso!",
+      "landingTabReset": "Aba inicial redefinida para o valor atual."
     },
     "errors": {
       "failedToGetPath": "Falha ao obter o caminho atual do brew.",
@@ -461,7 +464,12 @@
       "failedToSelectDirectory": "Falha ao selecionar diretório.",
       "failedToSetCustomCaskOpts": "Falha ao definir opções Cask personalizadas. Verifique sua entrada.",
       "failedToSetCustomOutdatedArgs": "Falha ao definir argumentos outdated personalizados. Verifique sua entrada.",
-      "failedToSetAdminUsername": "Falha ao atualizar nome de usuário administrador"
+      "failedToSetAdminUsername": "Falha ao atualizar nome de usuário administrador",
+      "failedToSetProxy": "Falha ao definir a conexão do proxy. Verifique sua entrada.",
+      "emptyTestUrl": "Por favor, insira uma URL de teste.",
+      "emptyProxyForTest": "Por favor, insira uma URL de proxy para testar.",
+      "proxyTestFailed": "O teste de conexão do proxy falhou.",
+      "failedToSetLandingTab": "Falha ao definir a aba inicial. Verifique sua configuração."
     },
     "mirrorSource": {
       "title": "Fonte de Espelho Homebrew",
@@ -514,6 +522,18 @@
       "placeholder": "Digite o nome de usuário administrador",
       "currentUser": "Usuário atual",
       "info": "Este nome de usuário será usado quando as operações do Homebrew exigirem privilégios de administrador. Deixe vazio para usar sua conta de usuário atual."
+    },
+    "proxy": {
+      "title": "Configurações de Proxy",
+      "none": "Nenhum",
+      "description": "Configure um proxy HTTP para o Homebrew. Suporta nome de usuário e senha (ex. http://user:pass@127.0.0.1:7890).",
+      "currentProxy": "Proxy Atual",
+      "placeholder": "http://127.0.0.1:7890",
+      "note": "Pode ser necessário reiniciar para que algumas alterações tenham efeito total, mas a maioria dos comandos brew detectará isso imediatamente.",
+      "testConnection": "Testar Conexão",
+      "testUrlPlaceholder": "https://google.com ou https://brew.sh",
+      "testButton": "Testar",
+      "testing": "Testando..."
     },
     "advancedOptions": {
       "title": "Opções Avançadas",

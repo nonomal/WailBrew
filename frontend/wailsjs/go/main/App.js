@@ -134,6 +134,10 @@ export function GetInstalledDependents(arg1) {
   return window['go']['main']['App']['GetInstalledDependents'](arg1);
 }
 
+export function GetLandingTab() {
+  return window['go']['main']['App']['GetLandingTab']();
+}
+
 export function GetMacOSReleaseName() {
   return window['go']['main']['App']['GetMacOSReleaseName']();
 }
@@ -146,8 +150,16 @@ export function GetMirrorSource() {
   return window['go']['main']['App']['GetMirrorSource']();
 }
 
+export function GetNoQuarantine() {
+  return window['go']['main']['App']['GetNoQuarantine']();
+}
+
 export function GetOutdatedFlag() {
   return window['go']['main']['App']['GetOutdatedFlag']();
+}
+
+export function GetProxy() {
+  return window['go']['main']['App']['GetProxy']();
 }
 
 export function GetSessionLogs() {
@@ -206,6 +218,10 @@ export function RunBrewDoctor() {
   return window['go']['main']['App']['RunBrewDoctor']();
 }
 
+export function SaveWindowGeometry(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['SaveWindowGeometry'](arg1, arg2, arg3, arg4, arg5);
+}
+
 export function SelectCaskAppDir() {
   return window['go']['main']['App']['SelectCaskAppDir']();
 }
@@ -246,6 +262,10 @@ export function SetDockBadgeSync(arg1) {
   return window['go']['main']['App']['SetDockBadgeSync'](arg1);
 }
 
+export function SetLandingTab(arg1) {
+  return window['go']['main']['App']['SetLandingTab'](arg1);
+}
+
 export function SetLanguage(arg1) {
   return window['go']['main']['App']['SetLanguage'](arg1);
 }
@@ -254,12 +274,28 @@ export function SetMirrorSource(arg1, arg2) {
   return window['go']['main']['App']['SetMirrorSource'](arg1, arg2);
 }
 
+export function SetNoQuarantine(arg1) {
+  return window['go']['main']['App']['SetNoQuarantine'](arg1);
+}
+
 export function SetOutdatedFlag(arg1) {
   return window['go']['main']['App']['SetOutdatedFlag'](arg1);
 }
 
+export function SetProxy(arg1) {
+  return window['go']['main']['App']['SetProxy'](arg1);
+}
+
+export function SetWindowTheme(arg1) {
+  return window['go']['main']['App']['SetWindowTheme'](arg1);
+}
+
 export function TapBrewRepository(arg1) {
   return window['go']['main']['App']['TapBrewRepository'](arg1);
+}
+
+export function TestProxyConnection(arg1, arg2) {
+  return window['go']['main']['App']['TestProxyConnection'](arg1, arg2);
 }
 
 export function UntapBrewRepository(arg1) {
