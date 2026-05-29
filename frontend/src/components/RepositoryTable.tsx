@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { CircleCheckBig, CircleX, ArrowUp, ArrowDown, Info } from "lucide-react";
 
@@ -41,15 +41,62 @@ const RepositoryTable: React.FC<RepositoryTableProps> = ({
     const getColumnWidth = (key: string): string => {
         if (key === 'name') return 'auto';
         if (key === 'status') return '150px';
-        if (key === 'actions') return '100px';
+        if (key === 'actions') return '110px';
         return 'auto';
     };
+
+    // Column resizing
+    const resizingRef = useRef<{ colKey: string; startX: number; startWidth: number } | null>(null);
+    const didDragRef = useRef<boolean>(false);
+    const suppressNextClickRef = useRef<boolean>(false);
+    const [columnWidths, setColumnWidths] = useState<Record<string, string>>(() => {
+        const widths: Record<string, string> = {};
+        columns.forEach(col => { widths[col.key] = getColumnWidth(col.key); });
+        return widths;
+    });
+
+    const handleResizeMouseDown = useCallback((e: React.MouseEvent, colKey: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const th = (e.currentTarget as HTMLElement).parentElement as HTMLElement;
+        const startWidth = th.getBoundingClientRect().width;
+        resizingRef.current = { colKey, startX: e.clientX, startWidth };
+
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            if (!resizingRef.current) return;
+            const delta = moveEvent.clientX - resizingRef.current.startX;
+            if (Math.abs(delta) > 2) didDragRef.current = true;
+            const newWidth = Math.max(60, resizingRef.current.startWidth + delta);
+            setColumnWidths(prev => ({ ...prev, [resizingRef.current!.colKey]: `${newWidth}px` }));
+        };
+
+        const onMouseUp = () => {
+            const dragged = didDragRef.current;
+            resizingRef.current = null;
+            didDragRef.current = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            if (dragged) {
+                suppressNextClickRef.current = true;
+                setTimeout(() => { suppressNextClickRef.current = false; }, 0);
+            }
+        };
+
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }, []);
 
     // Handle column header click for sorting
     const handleSort = (key: string, sortable: boolean = true) => {
         // Don't sort on non-sortable columns
         if (!sortable) return;
-        
+        // Ignore the synthetic click that follows a column-resize drag
+        if (suppressNextClickRef.current) return;
+
         if (sortKey === key) {
             // Toggle direction if same column
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -133,10 +180,11 @@ const RepositoryTable: React.FC<RepositoryTableProps> = ({
         )}
         {repositories.length > 0 && (
             <div className="table-split-wrapper">
-                <table className="package-table package-table-header">
+                <div className="table-scroll-x">
+                <table className="package-table">
                     <colgroup>
                         {columns.map((col) => (
-                            <col key={`header-col-${col.key}`} style={{ width: getColumnWidth(col.key) }} />
+                            <col key={`col-${col.key}`} style={{ width: columnWidths[col.key] ?? getColumnWidth(col.key) }} />
                         ))}
                     </colgroup>
                     <thead>
@@ -151,7 +199,7 @@ const RepositoryTable: React.FC<RepositoryTableProps> = ({
                                         onClick={() => handleSort(col.key, isSortable)}
                                         style={{ 
                                             cursor: isSortable ? 'pointer' : 'default',
-                                            userSelect: 'none'
+                                            userSelect: 'none',
                                         }}
                                     >
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -168,35 +216,33 @@ const RepositoryTable: React.FC<RepositoryTableProps> = ({
                                                 <ArrowDown size={14} />
                                             )}
                                         </div>
+                                        {col.key !== 'actions' && (
+                                            <div
+                                                className="col-resize-handle"
+                                                onMouseDown={(e) => handleResizeMouseDown(e, col.key)}
+                                            />
+                                        )}
                                     </th>
                                 );
                             })}
                         </tr>
                     </thead>
+                    <tbody>
+                        {sortedRepositories.map(repo => (
+                            <tr
+                                key={repo.name}
+                                className={selectedRepository?.name === repo.name ? "selected" : ""}
+                                onClick={() => onSelect(repo)}
+                            >
+                                {columns.map(col => (
+                                    <td key={col.key}>
+                                        {renderCellContent(repo, col)}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
-                <div className="table-body-scroll">
-                    <table className="package-table package-table-body">
-                        <colgroup>
-                            {columns.map((col) => (
-                                <col key={`body-col-${col.key}`} style={{ width: getColumnWidth(col.key) }} />
-                            ))}
-                        </colgroup>
-                        <tbody>
-                            {sortedRepositories.map(repo => (
-                                <tr
-                                    key={repo.name}
-                                    className={selectedRepository?.name === repo.name ? "selected" : ""}
-                                    onClick={() => onSelect(repo)}
-                                >
-                                    {columns.map(col => (
-                                        <td key={col.key}>
-                                            {renderCellContent(repo, col)}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </div>
                 <div className="table-footer">
                     <div className="table-footer-content">
